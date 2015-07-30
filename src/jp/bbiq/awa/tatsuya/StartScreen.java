@@ -4,18 +4,24 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class StartScreen implements Screen {
 	private Stage stage;
+	private OrthographicCamera camera;
+	private Viewport viewport;
 	
 	public StartScreen(final Game game) {
-		stage = new Stage(new FitViewport(600, 1280));
+		camera = new OrthographicCamera(EiGetsuGame.WIDTH, EiGetsuGame.HEIGHT);
+		viewport = new FitViewport(EiGetsuGame.WIDTH, EiGetsuGame.HEIGHT, camera);
+		stage = new Stage(viewport);
 		Gdx.input.setInputProcessor(stage);
 		
 		// 背景を配置
@@ -55,12 +61,13 @@ public class StartScreen implements Screen {
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        
+        camera.update();
 		stage.draw();
 	}
 
 	@Override
 	public void resize(int width, int height) {
+		viewport.update(width, height);
 	}
 
 	@Override
