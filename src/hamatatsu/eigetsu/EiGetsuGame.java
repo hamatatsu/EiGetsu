@@ -4,10 +4,10 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class ShootingGame extends Game {
+public class EiGetsuGame extends Game {
 	
-	public final static float WIDTH = 720;
-	public final static float HEIGHT = 1280;
+	public static final float WIDTH = 720;
+	public static final float HEIGHT = 1280;
 	
 	OrthographicCamera camera;
 	Viewport viewport;
