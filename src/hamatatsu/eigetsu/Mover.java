@@ -13,5 +13,9 @@ public class Mover extends Sprite {
 	
 	public void shoot() {
 	}
+	
+	public void act(float delta) {
+		
+	}
 
 }
