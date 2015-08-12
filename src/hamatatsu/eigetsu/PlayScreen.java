@@ -7,16 +7,20 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class PlayScreen implements Screen {
 	private Game game;
+	public static int difficulty;// peacefull:0 easy:1 normal:2 hard:3
 
 	// カメラ
 	private OrthographicCamera camera;
@@ -26,28 +30,33 @@ public class PlayScreen implements Screen {
 	private Stage stage;
 	// スプライトバッチ
 	private SpriteBatch batch;
+	
 	// グループ
 	private Group guiGroup;
 	// スプライト
 	private Player player;
-	private Array<PBullet> bulletArray;
+	private Array<PBullet> pBulletArray;
+	private Array<Enemy> enemyArray;
+	private Array<EBullet> eBulletArray;
 	// 現在のスコア
 	private int score;
 	// GUI
 	private Label scoreLabel;
 	private TextButton menuButton;
-	// ゲームオーバー
-	private boolean isGameOver = false;
+	private Touchpad joystick;
+	
+	public static int gameStatus = 0; // 0:Playing 1:Pause 2:GameOver
 
 
 	public PlayScreen(Game game, int difficulty) {
 		this.game = game;
-
+		PlayScreen.difficulty = difficulty;
 		setupCamera();
 		setupStage();
 		setupSprite();
 		setupGUI();
-
+		
+		enemyArray.add(new Ring(eBulletArray, 50));
 	}
 
 	// カメラ設定
@@ -67,9 +76,10 @@ public class PlayScreen implements Screen {
 	private void setupSprite() {
 		// スプライトバッチ作成
 		batch = new SpriteBatch();
-		bulletArray = new Array<PBullet>();
-		player = new Player(bulletArray);
-		
+		pBulletArray = new Array<PBullet>();
+		player = new Player(pBulletArray);
+		eBulletArray = new Array<EBullet>();
+		enemyArray = new Array<Enemy>();
 	}
 
 	// ＧＵＩ設定
@@ -87,7 +97,20 @@ public class PlayScreen implements Screen {
 		menuButton = new TextButton("MENU", Assets.skin);
 		menuButton.setSize(100, 50);
 		menuButton.setPosition(stage.getWidth() - menuButton.getWidth(), stage.getHeight() - menuButton.getHeight());
+		menuButton.addListener(new ChangeListener() {
+			@Override
+        	public void changed(ChangeEvent event, Actor actor) {
+                // ポーズ画面を表示
+				pause();
+            }
+		});
 		guiGroup.addActor(menuButton);
+		
+		// ジョイスティック
+		joystick = new Touchpad(0, Assets.skin);
+		joystick.setSize(stage.getWidth() / 4, stage.getWidth() / 4);
+		joystick.setPosition(stage.getWidth() / 8 * 3, 0);
+		guiGroup.addActor(joystick);
 	}
 
 	// 得点
@@ -98,62 +121,92 @@ public class PlayScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-		if (! isGameOver) {
+		// 画面初期化
+		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		camera.update();
+		batch.setProjectionMatrix(camera.combined);
+		stage.act();
+		switch (gameStatus) {
+		case 0: // プレイ中
 			// 入力処理
 			input();
-		}
-		// 画面初期化
-				Gdx.gl.glClearColor(0, 0, 0, 1);
-				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-				camera.update();
-				batch.setProjectionMatrix(camera.combined);
-				stage.act();
-				
-				// スプライト描画
-				batch.begin();
-				batch.draw(Assets.bg1Texture, 0, 0);
-				// プレイヤー
-				player.act(delta);
-				player.draw(batch);
-				// 弾
-				if (bulletArray != null) {
-					for (int bulletIndex = 0; bulletIndex < bulletArray.size; bulletIndex++) {
-						PBullet bullet = bulletArray.get(bulletIndex);
-						bullet.act(delta);
-						if (bullet.getY() > EiGetsuGame.HEIGHT) {
-							bulletArray.removeIndex(bulletIndex);
-						} else {
-						bullet.draw(batch);
-						}
+			// スプライト描画
+			batch.begin();
+			batch.draw(Assets.bg1Texture, 0, 0);
+			// プレイヤー
+			player.act(delta);
+			player.draw(batch);
+			// 弾
+			if (pBulletArray != null) {
+				for (int bulletIndex = 0; bulletIndex < pBulletArray.size; bulletIndex++) {
+					PBullet bullet = pBulletArray.get(bulletIndex);
+					bullet.act(delta);
+					if (bullet.getY() > EiGetsuGame.HEIGHT) {
+						pBulletArray.removeIndex(bulletIndex);
+					} else {
+					bullet.draw(batch);
 					}
 				}
-				batch.end();
-				
-				// ステージ描画
-				stage.draw();
-
+			}
+			// 敵弾
+			if (eBulletArray != null) {
+				for (int eBulletIndex = 0; eBulletIndex < eBulletArray.size; eBulletIndex++) {
+					EBullet eBullet = eBulletArray.get(eBulletIndex);
+					eBullet.act(delta);
+					if (
+						eBullet.getY() < 0 || eBullet.getY() > EiGetsuGame.HEIGHT || 
+						eBullet.getX() < 0 || eBullet.getX() > EiGetsuGame.WIDTH) {
+						eBulletArray.removeIndex(eBulletIndex);
+					} else {
+					eBullet.draw(batch);
+					}
+				}
+			}
+			// 敵
+			if (enemyArray != null) {
+				for (int enemyIndex = 0; enemyIndex < enemyArray.size; enemyIndex++) {
+					Enemy enemy = enemyArray.get(enemyIndex);
+					enemy.act(delta);
+					if (enemy.getY() < 0) {
+						enemyArray.removeIndex(enemyIndex);
+					} else {
+					enemy.draw(batch);
+					}
+				}
+			}
+			batch.end();
+			
+			// ステージ描画
+			stage.draw();
+			
+			break;
+		case 1: // ポーズ
+			
+			break;
+		case 2: // ゲームオーバー
+			break;
+		}
 	}
+	
+	// 衝突判定
+    private void checkCollision() {
+    	
+    	
+    }
 	
 	// 入力処理
 	private void input() {
 		// 移動距離
 		float dx = 0, dy = 0, delta = Gdx.graphics.getDeltaTime();
-
-		// 矢印キーで移動
-		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			dx = -delta;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			dx = delta;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			dy = delta;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-			dy = -delta;
-		}
-
-		// ドラッグで移動
+		
+		// ジョイスティックで移動
+		float joystickX = joystick.getKnobPercentX();
+		float joystickY = joystick.getKnobPercentY();
+		dx = delta * joystickX;
+		dy = delta * joystickY;
+		
+		// タッチで発射
 		if (Gdx.input.isTouched()) {
 			player.shoot();
 		}
@@ -171,11 +224,11 @@ public class PlayScreen implements Screen {
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
 			player.shoot();
 		}
+		
 	}
 
 	@Override
 	public void show() {
-		// TODO 自動生成されたメソッド・スタブ
 
 	}
 
@@ -186,19 +239,16 @@ public class PlayScreen implements Screen {
 
 	@Override
 	public void pause() {
-		// TODO 自動生成されたメソッド・スタブ
-
+		gameStatus = 1;
 	}
 
 	@Override
 	public void resume() {
-		// TODO 自動生成されたメソッド・スタブ
-
+		
 	}
 
 	@Override
 	public void hide() {
-		// TODO 自動生成されたメソッド・スタブ
 
 	}
 
@@ -208,5 +258,7 @@ public class PlayScreen implements Screen {
 		batch.dispose();
 	}
 
-
+	private void gameOver() {
+		game.setScreen(new StartScreen(game));
+	}
 }

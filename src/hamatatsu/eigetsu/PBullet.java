@@ -1,21 +1,18 @@
 package hamatatsu.eigetsu;
 
-import com.badlogic.gdx.Gdx;
 
 public class PBullet extends Mover {
 	private static final float SPEED = 1000;
 
-	public PBullet(float x, float y) {
-		super(Assets.enemy1Texture);
-		setSize(Player.BULLET_X, Player.BULLET_Y);
-		setPosition(x, y);
+	public PBullet(float x, float y, float width, float height) {
+		super(Assets.pBulletTexture);
+		setSize(width, height);
+		setPosition(x - width / 2, y - height / 2);
 	}
 
+	// 弾を移動
 	@Override
 	public void act(float delta) {
-        super.act(delta);
- 
-        // 弾を移動
-        translate(0, SPEED * Gdx.graphics.getDeltaTime());
+        translate(0, SPEED * delta);
     }
 }

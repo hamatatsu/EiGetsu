@@ -16,8 +16,9 @@ public class Assets {
     private static TextureAtlas bgAtlas;
     
     public static TextureRegion playerTexture;
-    public static TextureRegion enemy1Texture;
-    public static TextureRegion enemy2Texture;
+    public static TextureRegion pBulletTexture;
+    public static TextureRegion ringTexture;
+    public static TextureRegion eBullet1Texture;
     public static TextureRegion crescentTexture;
     public static TextureRegion bg1Texture;
     
@@ -42,8 +43,9 @@ public class Assets {
         
         //変数にセット
         playerTexture = moverAtlas.findRegion("player");
-        enemy1Texture = moverAtlas.findRegion("enemy1");
-        enemy2Texture = moverAtlas.findRegion("enemy2");
+        pBulletTexture = moverAtlas.findRegion("pBullet");
+        ringTexture = moverAtlas.findRegion("ring");
+        eBullet1Texture = moverAtlas.findRegion("eBullet1");
         crescentTexture = moverAtlas.findRegion("crescent");
         bg1Texture = bgAtlas.findRegion("background1");
         
