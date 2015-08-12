@@ -18,6 +18,8 @@ public class StartScreen implements Screen {
 	private OrthographicCamera camera;
 	private Viewport viewport;
 	
+	int difficulty = 1; // 初期難易度イージー
+	
 	public StartScreen(final Game game) {
 		camera = new OrthographicCamera(EiGetsuGame.WIDTH, EiGetsuGame.HEIGHT);
 		viewport = new FitViewport(EiGetsuGame.WIDTH, EiGetsuGame.HEIGHT, camera);
@@ -36,7 +38,7 @@ public class StartScreen implements Screen {
         	@Override
         	public void changed(ChangeEvent event, Actor actor) {
                 // プレイ画面に移行
-                game.setScreen(new PlayScreen(game, 0));
+                game.setScreen(new PlayScreen(game, difficulty));
             }
         });
         

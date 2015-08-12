@@ -7,21 +7,19 @@ public class Player extends Mover {
 	public static final float MAX_SPEED = 500;
 	// 初期位置
 	private final float START_X = 360;
-	private final float START_Y = 100;
+	private final float START_Y = 300;
 	// 大きさ
-	static final float SIZE_X = 100;
-	static final float SIZE_Y = 100;
+	static final float SIZE_X = 70;
+	static final float SIZE_Y = 70;
 	// 弾の大きさ
-	static final float BULLET_X = 12;
-	static final float BULLET_Y = 22;
+	private final float BULLET_WIDTH = 12;
+	private final float BULLET_HEIGHT = 22;
 	// 発射間隔
-	private final float SHOOT_INTERVAL = 0.06f; //発射間隔　秒
+	private final float SHOOT_INTERVAL = 0.06f; //発射間隔 秒
 	private float shootTimer; // 前回の発射からの経過時間
 		
 	// 弾
-	private Array<PBullet> bulletArray = new Array<PBullet>();
-	
-	
+	private Array<PBullet> bulletArray;
 	
 	public Player(Array<PBullet> bulletArray) {
 		super(Assets.playerTexture);
@@ -57,7 +55,8 @@ public class Player extends Mover {
 	    // 発射音を再生
 	 
 	    // 弾を作成
-	    PBullet bullet = new PBullet(getX() + (SIZE_X - BULLET_X) / 2, getY() + SIZE_Y / 2 + BULLET_Y);
+	    PBullet bullet = new PBullet(getX() + SIZE_X / 2, getY() + SIZE_Y / 2,
+	    		BULLET_WIDTH, BULLET_HEIGHT);
 	 
 	    // グループに追加
 	    bulletArray.add(bullet);
