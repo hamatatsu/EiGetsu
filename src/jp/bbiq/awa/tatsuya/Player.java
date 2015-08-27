@@ -19,13 +19,13 @@ public class Player extends Mover {
 	private float shootTimer; // 前回の発射からの経過時間
 		
 	// 弾
-	private Array<PBullet> bulletArray;
+	private Array<Mover> bulletArray;
 	
-	public Player(Array<PBullet> bulletArray) {
+	public Player(Array<Mover> pBulletArray) {
 		super(Assets.playerTexture);
 		setSize(SIZE_X, SIZE_Y);
 		setPosition(START_X - SIZE_X / 2, START_Y - SIZE_Y / 2);
-		this.bulletArray = bulletArray;
+		this.bulletArray = pBulletArray;
 	}
 	
 	public void move(float dx, float dy) {

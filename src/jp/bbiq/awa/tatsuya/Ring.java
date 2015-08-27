@@ -4,18 +4,18 @@ import com.badlogic.gdx.utils.Array;
 
 
 public class Ring extends Enemy {
-	Array<EBullet> bullet;
+	Array<Mover> bullet;
 	private float SHOOT_INTERVAL = 3f; //発射間隔 秒
 	private float shootTimer; // 前回の発射からの経過時間
 	// 弾の大きさ
 	private final float BULLET_WIDTH = 30;
 	private final float BULLET_HEIGHT = 30;
 
-	Ring(Array<EBullet> bullet, float x) {
+	Ring(Array<Mover> eBulletArray, float x) {
 		super(Assets.ringTexture);
 		setSize(50, 50);
 		setPosition(x, EiGetsuGame.HEIGHT);
-		this.bullet = bullet;
+		this.bullet = eBulletArray;
 		SHOOT_INTERVAL /= PlayScreen.difficulty;
 	}
 

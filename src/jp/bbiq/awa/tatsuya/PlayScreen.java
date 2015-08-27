@@ -34,10 +34,10 @@ public class PlayScreen implements Screen {
 	// グループ
 	private Group guiGroup;
 	// スプライト
-	private Player player;
-	private Array<PBullet> pBulletArray;
-	private Array<Enemy> enemyArray;
-	private Array<EBullet> eBulletArray;
+	private Mover player;
+	private Array<Mover> pBulletArray;
+	private Array<Mover> enemyArray;
+	private Array<Mover> eBulletArray;
 	// 現在のスコア
 	private int score;
 	// GUI
@@ -56,7 +56,7 @@ public class PlayScreen implements Screen {
 		setupSprite();
 		setupGUI();
 		
-		enemyArray.add(new Ring(eBulletArray, 50));
+		enemyArray.add(new Ring(eBulletArray, 50f));
 	}
 
 	// カメラ設定
@@ -76,13 +76,13 @@ public class PlayScreen implements Screen {
 	private void setupSprite() {
 		// スプライトバッチ作成
 		batch = new SpriteBatch();
-		pBulletArray = new Array<PBullet>();
+		pBulletArray = new Array<Mover>();
 		player = new Player(pBulletArray);
-		eBulletArray = new Array<EBullet>();
-		enemyArray = new Array<Enemy>();
+		eBulletArray = new Array<Mover>();
+		enemyArray = new Array<Mover>();
 	}
 
-	// ＧＵＩ設定
+	// GUI設定
 	private void setupGUI() {
 		guiGroup = new Group();
 		stage.addActor(guiGroup);
@@ -131,6 +131,8 @@ public class PlayScreen implements Screen {
 		case 0: // プレイ中
 			// 入力処理
 			input();
+			// 衝突処理
+			checkCollision();
 			// スプライト描画
 			batch.begin();
 			batch.draw(Assets.bg1Texture, 0, 0);
@@ -139,20 +141,20 @@ public class PlayScreen implements Screen {
 			player.draw(batch);
 			// 弾
 			if (pBulletArray != null) {
-				for (int bulletIndex = 0; bulletIndex < pBulletArray.size; bulletIndex++) {
-					PBullet bullet = pBulletArray.get(bulletIndex);
-					bullet.act(delta);
-					if (bullet.getY() > EiGetsuGame.HEIGHT) {
-						pBulletArray.removeIndex(bulletIndex);
+				for (int pBulletIndex = 0; pBulletIndex < pBulletArray.size; pBulletIndex++) {
+					Mover pBullet = pBulletArray.get(pBulletIndex);
+					pBullet.act(delta);
+					if (pBullet.getY() > EiGetsuGame.HEIGHT) {
+						pBulletArray.removeIndex(pBulletIndex);
 					} else {
-					bullet.draw(batch);
+					pBullet.draw(batch);
 					}
 				}
 			}
 			// 敵弾
 			if (eBulletArray != null) {
 				for (int eBulletIndex = 0; eBulletIndex < eBulletArray.size; eBulletIndex++) {
-					EBullet eBullet = eBulletArray.get(eBulletIndex);
+					Mover eBullet = eBulletArray.get(eBulletIndex);
 					eBullet.act(delta);
 					if (
 						eBullet.getY() < 0 || eBullet.getY() > EiGetsuGame.HEIGHT || 
@@ -166,7 +168,7 @@ public class PlayScreen implements Screen {
 			// 敵
 			if (enemyArray != null) {
 				for (int enemyIndex = 0; enemyIndex < enemyArray.size; enemyIndex++) {
-					Enemy enemy = enemyArray.get(enemyIndex);
+					Mover enemy = enemyArray.get(enemyIndex);
 					enemy.act(delta);
 					if (enemy.getY() < 0) {
 						enemyArray.removeIndex(enemyIndex);
@@ -191,9 +193,35 @@ public class PlayScreen implements Screen {
 	
 	// 衝突判定
     private void checkCollision() {
-    	
-    	
+        if (enemyArray != null) {
+			for (int enemyIndex = 0; enemyIndex < enemyArray.size; enemyIndex++) {
+				Mover enemy = enemyArray.get(enemyIndex);
+				
+				// 敵と自機
+				if (Collision.isCollided(enemy, player)) {
+					gameOver();
+					return;
+				}
+				
+				// 弾と敵
+				if (pBulletArray != null) {
+					for (int pBulletIndex = 0; pBulletIndex < pBulletArray.size; pBulletIndex++) {
+						Mover pBullet = pBulletArray.get(pBulletIndex);
+						// 敵と弾丸の当たり判定
+						if (Collision.isCollided(enemy, pBullet)) {
+							addScore(100);
+							
+							// 敵と弾丸を削除
+							enemyArray.removeIndex(enemyIndex);
+							pBulletArray.removeIndex(pBulletIndex);
+							break;
+						}
+					}
+				}
+			}
+        }
     }
+    
 	
 	// 入力処理
 	private void input() {
