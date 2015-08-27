@@ -57,6 +57,7 @@ public class StartScreen implements Screen {
         // ボタンを配置
 		stage.addActor(startButton);
 		stage.addActor(exitButton);
+		//
 	}
 
 	@Override
