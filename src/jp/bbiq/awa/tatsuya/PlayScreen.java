@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -40,17 +42,21 @@ public class PlayScreen implements Screen {
 	private Array<Mover> eBulletArray;
 	// 現在のスコア
 	private int score;
+	// スポーンタイマー
+	private float spawnTimer;
+	private float pSpawnTimer;
 	// GUI
 	private Label scoreLabel;
 	private TextButton menuButton;
 	private Touchpad joystick;
 	
-	public static int gameStatus = 0; // 0:Playing 1:Pause 2:GameOver
+	public static int gameStatus; // 0:Playing 1:Pause 2:GameOver
 
 
 	public PlayScreen(Game game, int difficulty) {
 		this.game = game;
 		PlayScreen.difficulty = difficulty;
+		gameStatus = 0;
 		setupCamera();
 		setupStage();
 		setupSprite();
@@ -113,12 +119,6 @@ public class PlayScreen implements Screen {
 		guiGroup.addActor(joystick);
 	}
 
-	// 得点
-	private void addScore(int n) {
-		score += n;
-		scoreLabel.setText("SCORE: " + score);
-	}
-
 	@Override
 	public void render(float delta) {
 		// 画面初期化
@@ -127,12 +127,14 @@ public class PlayScreen implements Screen {
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		stage.act();
-		switch (gameStatus) {
-		case 0: // プレイ中
+//		switch (gameStatus) {
+//		case 0: // プレイ中
 			// 入力処理
 			input();
 			// 衝突処理
 			checkCollision();
+			// 敵の生成
+			spawnEnemy(delta);
 			// スプライト描画
 			batch.begin();
 			batch.draw(Assets.bg1Texture, 0, 0);
@@ -182,49 +184,15 @@ public class PlayScreen implements Screen {
 			// ステージ描画
 			stage.draw();
 			
-			break;
-		case 1: // ポーズ
-			
-			break;
-		case 2: // ゲームオーバー
-			break;
-		}
+//			break;
+//		}
 	}
-	
-	// 衝突判定
-    private void checkCollision() {
-        if (enemyArray != null) {
-			for (int enemyIndex = 0; enemyIndex < enemyArray.size; enemyIndex++) {
-				Mover enemy = enemyArray.get(enemyIndex);
-				
-				// 敵と自機
-				if (Collision.isCollided(enemy, player)) {
-					gameOver();
-					return;
-				}
-				
-				// 弾と敵
-				if (pBulletArray != null) {
-					for (int pBulletIndex = 0; pBulletIndex < pBulletArray.size; pBulletIndex++) {
-						Mover pBullet = pBulletArray.get(pBulletIndex);
-						// 敵と弾丸の当たり判定
-						if (Collision.isCollided(enemy, pBullet)) {
-							addScore(100);
-							
-							// 敵と弾丸を削除
-							enemyArray.removeIndex(enemyIndex);
-							pBulletArray.removeIndex(pBulletIndex);
-							break;
-						}
-					}
-				}
-			}
-        }
-    }
-    
 	
 	// 入力処理
 	private void input() {
+		if (gameStatus > 0) {
+			return;
+		}
 		// 移動距離
 		float dx = 0, dy = 0, delta = Gdx.graphics.getDeltaTime();
 		
@@ -254,7 +222,76 @@ public class PlayScreen implements Screen {
 		}
 		
 	}
+	
+	// 衝突判定
+    private void checkCollision() {
+    	if (eBulletArray != null) {
+			for (int eBulletIndex = 0; eBulletIndex < eBulletArray.size; eBulletIndex++) {
+				Mover eBullet = eBulletArray.get(eBulletIndex);
+				
+				// 敵弾と自機
+				if (Collision.isCollided(eBullet, player)) {
+					// ゲームオーバー
+					GameOver();
+					return;
+				}
+			}
+			
+			if (pBulletArray != null) {
+				for (int pBulletIndex = 0; pBulletIndex < pBulletArray.size; pBulletIndex++) {
+					Mover pBullet = pBulletArray.get(pBulletIndex);
+					if (enemyArray != null) {
+						for (int enemyIndex = 0; enemyIndex < enemyArray.size; enemyIndex++) {
+							Mover enemy = enemyArray.get(enemyIndex);
+							// 敵と弾
+							if (Collision.isCollided(enemy, pBullet)) {
+								// スコアを加算
+								addScore(100);
+								
+								// 敵と弾を削除
+								enemyArray.removeIndex(enemyIndex);
+								pBulletArray.removeIndex(pBulletIndex);
+								break;
+							}
+						}
+					}
+				}
+			}
+    	}
+    }
 
+	// 得点
+	private void addScore(int n) {
+		score += n;
+		scoreLabel.setText("SCORE: " + score);
+	}
+
+    // 敵の生成
+    private void spawnEnemy(float delta) {
+    	if (gameStatus == 1) {
+    		return;
+    	}
+    	spawnTimer += delta;
+    	if (spawnTimer % 1 > pSpawnTimer) {
+    		pSpawnTimer = spawnTimer % 1;
+    		return;
+    	}
+    	enemyArray.add(new Ring(eBulletArray, MathUtils.random(0, EiGetsuGame.WIDTH)));
+    	pSpawnTimer = 0;
+    }
+    
+    public void GameOver() {
+    	
+    	// 3秒後にスタート画面に戻る
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                game.setScreen(new StartScreen(game));
+            }
+        }, 3);
+        gameStatus = 2;
+    }
+    
 	@Override
 	public void show() {
 
@@ -284,9 +321,5 @@ public class PlayScreen implements Screen {
 	public void dispose() {
 		stage.dispose();
 		batch.dispose();
-	}
-
-	private void gameOver() {
-		game.setScreen(new StartScreen(game));
 	}
 }
