@@ -3,23 +3,20 @@ package hamatatsu.eigetsu;
 import com.badlogic.gdx.utils.Array;
 
 
-public class Ring extends Enemy {
+public class Crescent extends Enemy {
 	Array<Mover> bullet;
-	private float SHOOT_INTERVAL = 3f; //発射間隔 秒
+	private float SHOOT_INTERVAL = 0.5f; //発射間隔 秒
 	private float shootTimer; // 前回の発射からの経過時間
-	// 大きさ
-	public static final float WIDTH = 30;
-	public static final float HEIGHT = 30;
 	// 弾の大きさ
 	public static final float BULLET_WIDTH = 30;
 	public static final float BULLET_HEIGHT = 30;
 	// 体力
-	private int MAX_HP = 1;
+	private int MAX_HP = 1000;
 
-	Ring(Array<Mover> eBulletArray, float x) {
-		super(Assets.ringTexture);
-		setSize(WIDTH, HEIGHT);
-		setPosition(x, EiGetsuGame.HEIGHT);
+	Crescent(Array<Mover> eBulletArray) {
+		super(Assets.crescentTexture);
+		setSize(200, 2000);
+		setPosition(EiGetsuGame.WIDTH / 2 - getWidth() / 2, EiGetsuGame.HEIGHT);
 		this.bullet = eBulletArray;
 		SHOOT_INTERVAL /= PlayScreen.difficulty;
 		MAX_HP *= PlayScreen.difficulty;
@@ -31,8 +28,10 @@ public class Ring extends Enemy {
 		if (PlayScreen.gameStatus > 0) {
 			return;
 		}
+		if (super.hp > MAX_HP * 3 / 4) {
+			
+		}
 		shootTimer += delta;
-		translate(0, -50 * delta);
 		shoot();
 	}
 	

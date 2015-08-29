@@ -36,7 +36,7 @@ public class PlayScreen implements Screen {
 	// グループ
 	private Group guiGroup;
 	// スプライト
-	private Mover player;
+	public static Mover player;
 	private Array<Mover> pBulletArray;
 	private Array<Mover> enemyArray;
 	private Array<Mover> eBulletArray;
@@ -159,8 +159,8 @@ public class PlayScreen implements Screen {
 					Mover eBullet = eBulletArray.get(eBulletIndex);
 					eBullet.act(delta);
 					if (
-						eBullet.getY() < 0 || eBullet.getY() > EiGetsuGame.HEIGHT || 
-						eBullet.getX() < 0 || eBullet.getX() > EiGetsuGame.WIDTH) {
+						eBullet.getY() < 0 - eBullet.getHeight() || eBullet.getY() > EiGetsuGame.HEIGHT || 
+						eBullet.getX() < 0 - eBullet.getWidth() || eBullet.getX() > EiGetsuGame.WIDTH) {
 						eBulletArray.removeIndex(eBulletIndex);
 					} else {
 					eBullet.draw(batch);
@@ -172,7 +172,7 @@ public class PlayScreen implements Screen {
 				for (int enemyIndex = 0; enemyIndex < enemyArray.size; enemyIndex++) {
 					Mover enemy = enemyArray.get(enemyIndex);
 					enemy.act(delta);
-					if (enemy.getY() < 0) {
+					if (enemy.getY() < 0 - enemy.getHeight()) {
 						enemyArray.removeIndex(enemyIndex);
 					} else {
 					enemy.draw(batch);
@@ -247,9 +247,13 @@ public class PlayScreen implements Screen {
 							if (Collision.isCollided(enemy, pBullet)) {
 								// スコアを加算
 								addScore(100);
-								
-								// 敵と弾を削除
-								enemyArray.removeIndex(enemyIndex);
+								// 敵の体力を減少
+								enemy.hp--;
+								// 敵を削除
+								if (enemy.hp == 0) {
+									enemyArray.removeIndex(enemyIndex);
+								}
+								// 弾を削除
 								pBulletArray.removeIndex(pBulletIndex);
 								break;
 							}
@@ -272,15 +276,27 @@ public class PlayScreen implements Screen {
     		return;
     	}
     	spawnTimer += delta;
-    	if (spawnTimer % 1 > pSpawnTimer) {
+    	if (spawnTimer % (1 / difficulty) > pSpawnTimer) {
     		pSpawnTimer = spawnTimer % 1;
     		return;
     	}
-    	enemyArray.add(new Ring(eBulletArray, MathUtils.random(0, EiGetsuGame.WIDTH)));
+    	switch(MathUtils.random(1)) {
+    	case 0:
+    		enemyArray.add(new Ring(eBulletArray, MathUtils.random(0, EiGetsuGame.WIDTH - Ring.WIDTH)));
+    		break;
+    	case 1:
+    		enemyArray.add(new Bee(eBulletArray, MathUtils.random(0, EiGetsuGame.WIDTH - Bee.WIDTH)));
+    		break;
+    	case 2:
+    		break;
+    	}
     	pSpawnTimer = 0;
     }
     
     public void GameOver() {
+    	if (gameStatus == 2) {
+    		return;
+    	}
     	
     	// 3秒後にスタート画面に戻る
         Timer.schedule(new Timer.Task() {
