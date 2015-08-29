@@ -9,8 +9,8 @@ public class Player extends Mover {
 	private final float START_X = 360;
 	private final float START_Y = 300;
 	// 大きさ
-	static final float SIZE_X = 70;
-	static final float SIZE_Y = 70;
+	static final float WIDTH = 70;
+	static final float HEIGHT = 70;
 	// 弾の大きさ
 	private final float BULLET_WIDTH = 12;
 	private final float BULLET_HEIGHT = 22;
@@ -23,8 +23,8 @@ public class Player extends Mover {
 	
 	public Player(Array<Mover> pBulletArray) {
 		super(Assets.playerTexture);
-		setSize(SIZE_X, SIZE_Y);
-		setPosition(START_X - SIZE_X / 2, START_Y - SIZE_Y / 2);
+		setSize(WIDTH, HEIGHT);
+		setPosition(START_X - WIDTH / 2, START_Y - HEIGHT / 2);
 		this.bulletArray = pBulletArray;
 	}
 	
@@ -34,13 +34,13 @@ public class Player extends Mover {
 	    // 画面外に出ないようにする
 	    if (getX() < 0) {
 	        setX(0);
-	    } else if (getX() > EiGetsuGame.WIDTH - SIZE_X) {
-	        setX(EiGetsuGame.WIDTH - SIZE_X);
+	    } else if (getX() > EiGetsuGame.WIDTH - WIDTH) {
+	        setX(EiGetsuGame.WIDTH - WIDTH);
 	    }
 	    if (getY() < 0) {
 	        setY(0);
-	    } else if (getY() > EiGetsuGame.HEIGHT - SIZE_Y) {
-	        setY(EiGetsuGame.HEIGHT - SIZE_Y);
+	    } else if (getY() > EiGetsuGame.HEIGHT - HEIGHT) {
+	        setY(EiGetsuGame.HEIGHT - HEIGHT);
 	    }
 	}
 	
@@ -55,7 +55,7 @@ public class Player extends Mover {
 	    // 発射音を再生
 	 
 	    // 弾を作成
-	    PBullet bullet = new PBullet(getX() + SIZE_X / 2, getY() + SIZE_Y / 2,
+	    PBullet bullet = new PBullet(getX() + WIDTH / 2, getY() + HEIGHT / 2,
 	    		BULLET_WIDTH, BULLET_HEIGHT);
 	 
 	    // グループに追加
@@ -64,6 +64,9 @@ public class Player extends Mover {
 	
 	@Override
 	public void act(float delta) {
+		if (PlayScreen.gameStatus > 0) {
+			return;
+		}
 		shootTimer += delta;
 	}
 

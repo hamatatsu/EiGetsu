@@ -13,6 +13,9 @@ public class PBullet extends Mover {
 	// 弾を移動
 	@Override
 	public void act(float delta) {
+		if (PlayScreen.gameStatus > 0) {
+			return;
+		}
         translate(0, SPEED * delta);
     }
 }
