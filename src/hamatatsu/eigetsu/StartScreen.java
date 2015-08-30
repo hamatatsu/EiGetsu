@@ -8,7 +8,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -19,6 +21,7 @@ public class StartScreen implements Screen {
 	private Viewport viewport;
 	
 	int difficulty = 1; // 初期難易度イージー
+	TextField level;
 	
 	public StartScreen(final Game game) {
 		camera = new OrthographicCamera(EiGetsuGame.WIDTH, EiGetsuGame.HEIGHT);
@@ -29,6 +32,12 @@ public class StartScreen implements Screen {
 		// 背景を配置
 		Image background = new Image(Assets.bg1Texture);
 		stage.addActor(background);
+		
+		// タイトルを配置
+		Image title = new Image(Assets.playerTexture);
+		title.setSize(500, 220);
+		title.setPosition((stage.getWidth()  - title.getWidth()) / 2, stage.getHeight() / 6 * 4);
+		stage.addActor(title);
 		
 		// スタートボタンを作成
 		TextButton startButton = new TextButton("START", Assets.skin);
@@ -54,10 +63,19 @@ public class StartScreen implements Screen {
             }
         });
         
-        // ボタンを配置
+        // レベル変更
+        level = new TextField("1", Assets.skin);
+		level.setSize(110, 50);
+        level.setPosition((stage.getWidth()  - level.getWidth()) / 2, stage.getHeight() * 5 / 12);
+        Label levelText = new Label("level", Assets.skin);
+        levelText.setFontScale(2);
+        levelText.setPosition((stage.getWidth()  - level.getWidth()) / 2 - levelText.getPrefWidth(), stage.getHeight() * 10 / 24);
+        
+        // GUIを配置
 		stage.addActor(startButton);
 		stage.addActor(exitButton);
-		//
+		stage.addActor(level);
+		stage.addActor(levelText);
 	}
 
 	@Override
@@ -66,6 +84,7 @@ public class StartScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
 		stage.draw();
+		difficulty = Integer.parseInt(level.getText());
 	}
 
 	@Override

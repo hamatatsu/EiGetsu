@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -33,6 +34,8 @@ public class PlayScreen implements Screen {
 	// スプライトバッチ
 	private SpriteBatch batch;
 	
+	// 背景
+	public static TextureRegion bgTexture = Assets.bg1Texture;
 	// グループ
 	private Group guiGroup;
 	// スプライト
@@ -42,12 +45,13 @@ public class PlayScreen implements Screen {
 	private Array<Mover> eBulletArray;
 	// 現在のスコア
 	private int score;
-	// スポーンタイマー
+	// 敵
 	private float spawnTimer;
 	private float pSpawnTimer;
+	private boolean isBoss;
 	// GUI
 	private Label scoreLabel;
-	private TextButton menuButton;
+	private TextButton pauseButton;
 	private Touchpad joystick;
 	
 	public static int gameStatus; // 0:Playing 1:Pause 2:GameOver
@@ -61,8 +65,6 @@ public class PlayScreen implements Screen {
 		setupStage();
 		setupSprite();
 		setupGUI();
-		
-		enemyArray.add(new Ring(eBulletArray, 50f));
 	}
 
 	// カメラ設定
@@ -86,6 +88,9 @@ public class PlayScreen implements Screen {
 		player = new Player(pBulletArray);
 		eBulletArray = new Array<Mover>();
 		enemyArray = new Array<Mover>();
+		// 敵
+		spawnTimer = 0;
+		isBoss = false;
 	}
 
 	// GUI設定
@@ -99,18 +104,22 @@ public class PlayScreen implements Screen {
 		scoreLabel.setFontScale(2);
 		guiGroup.addActor(scoreLabel);
 
-		// メニューボタン
-		menuButton = new TextButton("MENU", Assets.skin);
-		menuButton.setSize(100, 50);
-		menuButton.setPosition(stage.getWidth() - menuButton.getWidth(), stage.getHeight() - menuButton.getHeight());
-		menuButton.addListener(new ChangeListener() {
+		// ポーズボタン
+		pauseButton = new TextButton("PAUSE", Assets.skin);
+		pauseButton.setSize(100, 50);
+		pauseButton.setPosition(stage.getWidth() - pauseButton.getWidth(), stage.getHeight() - pauseButton.getHeight());
+		pauseButton.addListener(new ChangeListener() {
 			@Override
         	public void changed(ChangeEvent event, Actor actor) {
-                // ポーズ画面を表示
-				pause();
+				// 切り替え
+				if (gameStatus == 0) {
+					pause();
+				} else {
+					resume();
+				}
             }
 		});
-		guiGroup.addActor(menuButton);
+		guiGroup.addActor(pauseButton);
 		
 		// ジョイスティック
 		joystick = new Touchpad(0, Assets.skin);
@@ -127,8 +136,6 @@ public class PlayScreen implements Screen {
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		stage.act();
-//		switch (gameStatus) {
-//		case 0: // プレイ中
 			// 入力処理
 			input();
 			// 衝突処理
@@ -137,10 +144,12 @@ public class PlayScreen implements Screen {
 			spawnEnemy(delta);
 			// スプライト描画
 			batch.begin();
-			batch.draw(Assets.bg1Texture, 0, 0);
+			batch.draw(bgTexture, 0, 0);
 			// プレイヤー
+			if (gameStatus != 2) {
 			player.act(delta);
 			player.draw(batch);
+			}
 			// 弾
 			if (pBulletArray != null) {
 				for (int pBulletIndex = 0; pBulletIndex < pBulletArray.size; pBulletIndex++) {
@@ -183,9 +192,6 @@ public class PlayScreen implements Screen {
 			
 			// ステージ描画
 			stage.draw();
-			
-//			break;
-//		}
 	}
 	
 	// 入力処理
@@ -225,6 +231,9 @@ public class PlayScreen implements Screen {
 	
 	// 衝突判定
     private void checkCollision() {
+    	if (gameStatus < 0) {
+    		return;
+    	}
     	if (eBulletArray != null) {
 			for (int eBulletIndex = 0; eBulletIndex < eBulletArray.size; eBulletIndex++) {
 				Mover eBullet = eBulletArray.get(eBulletIndex);
@@ -272,15 +281,27 @@ public class PlayScreen implements Screen {
 
     // 敵の生成
     private void spawnEnemy(float delta) {
+    	if (spawnTimer > 30) {
+    		if (!isBoss) {
+    			enemyArray.add(new Crescent(eBulletArray));
+    			isBoss = true;
+    		}
+    		// クリア判定
+    		if (enemyArray.size == 0) {
+    			GameClear();
+    		}
+    		return;
+    	}
     	if (gameStatus == 1) {
     		return;
     	}
     	spawnTimer += delta;
-    	if (spawnTimer % (1 / difficulty) > pSpawnTimer) {
-    		pSpawnTimer = spawnTimer % 1;
+    	if (spawnTimer % 1 > pSpawnTimer) {
+    		
+    		pSpawnTimer = spawnTimer % 1f;
     		return;
     	}
-    	switch(MathUtils.random(1)) {
+    	switch(MathUtils.random(2)) {
     	case 0:
     		enemyArray.add(new Ring(eBulletArray, MathUtils.random(0, EiGetsuGame.WIDTH - Ring.WIDTH)));
     		break;
@@ -288,15 +309,25 @@ public class PlayScreen implements Screen {
     		enemyArray.add(new Bee(eBulletArray, MathUtils.random(0, EiGetsuGame.WIDTH - Bee.WIDTH)));
     		break;
     	case 2:
+    		enemyArray.add(new Bird(eBulletArray, MathUtils.random(0, EiGetsuGame.WIDTH - Ring.WIDTH)));
     		break;
     	}
     	pSpawnTimer = 0;
     }
     
-    public void GameOver() {
+	public void GameOver() {
     	if (gameStatus == 2) {
     		return;
     	}
+        
+        Label gameOverLabel = new Label("GAME OVER", Assets.skin);
+        gameOverLabel.setFontScale(2);
+        gameOverLabel.setPosition(stage.getWidth() / 2 - gameOverLabel.getPrefWidth() / 2,
+        		stage.getHeight() / 2 - gameOverLabel.getPrefHeight() / 2);
+        stage.addActor(gameOverLabel);
+        
+        scoreLabel.setPosition(stage.getWidth() / 2 - scoreLabel.getPrefWidth() / 2,
+        		stage.getHeight() * 2 / 5 - scoreLabel.getPrefHeight() / 2);
     	
     	// 3秒後にスタート画面に戻る
         Timer.schedule(new Timer.Task() {
@@ -308,6 +339,29 @@ public class PlayScreen implements Screen {
         gameStatus = 2;
     }
     
+	private void GameClear() {
+		gameStatus = -1;
+        
+        Label gameClearLabel = new Label("GAME CLEAR", Assets.skin);
+        gameClearLabel.setFontScale(2);
+        gameClearLabel.setPosition(stage.getWidth() / 2 - gameClearLabel.getPrefWidth() / 2,
+        		stage.getHeight() / 2 - gameClearLabel.getPrefHeight() / 2);
+        stage.addActor(gameClearLabel);
+        
+
+        scoreLabel.setPosition(stage.getWidth() / 2 - scoreLabel.getPrefWidth() / 2,
+        		stage.getHeight() * 2 / 5 - scoreLabel.getPrefHeight() / 2);
+        
+		// 3秒後にスタート画面に戻る
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                game.setScreen(new StartScreen(game));
+            }
+        }, 3);
+		
+	}
+	
 	@Override
 	public void show() {
 
@@ -320,12 +374,14 @@ public class PlayScreen implements Screen {
 
 	@Override
 	public void pause() {
+		pauseButton.setText("RESUME");
 		gameStatus = 1;
 	}
 
 	@Override
 	public void resume() {
-		
+		pauseButton.setText("PAUSE");
+		gameStatus = 0;
 	}
 
 	@Override
