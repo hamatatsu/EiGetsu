@@ -71,10 +71,10 @@ public class Crescent extends Enemy {
 			move1(delta);
 			if (super.hp < MAX_HP * 2 / 3) {
 				moveMode = 0;
-				Sprite next = new Sprite(Assets.eBullet1Texture);
+				Sprite next = new Sprite(Assets.halfMoonTexture);
 				next.setPosition(EiGetsuGame.WIDTH / 2 - getWidth() / 2, EiGetsuGame.HEIGHT);
 				set(next);
-				PlayScreen.bgTexture = Assets.bg1Texture;
+				PlayScreen.bgTexture = Assets.bg2Texture;
 				angle = 0;
 				movey = locationY[0] - getY();
 				movex = locationX[2] - getX();
@@ -86,10 +86,10 @@ public class Crescent extends Enemy {
 			move2(delta);
 			if (super.hp < MAX_HP / 3) {
 				moveMode = 0;
-				Sprite next = new Sprite(Assets.eBullet1Texture);
+				Sprite next = new Sprite(Assets.fullMoonTexture);
 				next.setPosition(EiGetsuGame.WIDTH / 2 - getWidth() / 2, EiGetsuGame.HEIGHT);
 				set(next);
-				PlayScreen.bgTexture = Assets.bg1Texture;
+				PlayScreen.bgTexture = Assets.bg3Texture;
 				angle = 0;
 				movey = locationY[2] - getY();
 				movex = locationX[2] - getX();

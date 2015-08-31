@@ -6,8 +6,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -35,7 +35,7 @@ public class PlayScreen implements Screen {
 	private SpriteBatch batch;
 	
 	// 背景
-	public static TextureRegion bgTexture = Assets.bg1Texture;
+	public static Texture bgTexture = Assets.bg0Texture;
 	// グループ
 	private Group guiGroup;
 	// スプライト
@@ -53,12 +53,15 @@ public class PlayScreen implements Screen {
 	private Label scoreLabel;
 	private TextButton pauseButton;
 	private Touchpad joystick;
+	// 無敵モード
+	private boolean immortal;
 	
 	public static int gameStatus; // 0:Playing 1:Pause 2:GameOver
 
 
-	public PlayScreen(Game game, int difficulty) {
+	public PlayScreen(Game game, int difficulty, boolean immortal) {
 		this.game = game;
+		this.immortal = immortal;
 		PlayScreen.difficulty = difficulty;
 		gameStatus = 0;
 		setupCamera();
@@ -123,8 +126,8 @@ public class PlayScreen implements Screen {
 		
 		// ジョイスティック
 		joystick = new Touchpad(0, Assets.skin);
-		joystick.setSize(stage.getWidth() / 4, stage.getWidth() / 4);
-		joystick.setPosition(stage.getWidth() / 8 * 3, 0);
+		joystick.setSize(stage.getWidth() * 2 / 5, stage.getWidth() * 2 / 5);
+		joystick.setPosition(stage.getWidth() * 3 / 10, 0);
 		guiGroup.addActor(joystick);
 	}
 
@@ -241,7 +244,9 @@ public class PlayScreen implements Screen {
 				// 敵弾と自機
 				if (Collision.isCollided(eBullet, player)) {
 					// ゲームオーバー
-					GameOver();
+					if (!immortal) {
+						GameOver();
+					}
 					return;
 				}
 			}
@@ -255,7 +260,9 @@ public class PlayScreen implements Screen {
 							// 敵と弾
 							if (Collision.isCollided(enemy, pBullet)) {
 								// スコアを加算
-								addScore(100);
+								if (!immortal) {
+									addScore(100);
+								}
 								// 敵の体力を減少
 								enemy.hp--;
 								// 敵を削除
@@ -283,6 +290,7 @@ public class PlayScreen implements Screen {
     private void spawnEnemy(float delta) {
     	if (spawnTimer > 30) {
     		if (!isBoss) {
+    			bgTexture = Assets.bg1Texture;
     			enemyArray.add(new Crescent(eBulletArray));
     			isBoss = true;
     		}
@@ -356,6 +364,7 @@ public class PlayScreen implements Screen {
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
+            	bgTexture = Assets.bg0Texture;
                 game.setScreen(new StartScreen(game));
             }
         }, 3);
