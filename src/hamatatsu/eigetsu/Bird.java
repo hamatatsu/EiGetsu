@@ -17,7 +17,7 @@ public class Bird extends Enemy {
 	private int MAX_HP = 1;
 
 	Bird(Array<Mover> eBulletArray, float x) {
-		super(Assets.ringTexture);
+		super(Assets.birdTexture);
 		setSize(WIDTH, HEIGHT);
 		setPosition(x, EiGetsuGame.HEIGHT);
 		this.bullet = eBulletArray;

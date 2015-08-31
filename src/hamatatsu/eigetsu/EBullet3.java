@@ -14,7 +14,7 @@ public class EBullet3 extends EBullet {
 	public static final float BULLET_HEIGHT = 15;
 
 	EBullet3(Array<Mover> eBulletArray, float x, float y, float angle, float width, float height) {
-		super(Assets.eBullet1Texture);
+		super(Assets.eBullet3Texture);
 		setSize(width, height);
 		setPosition(x - width / 2, y - height / 2);
 		this.angle = angle;

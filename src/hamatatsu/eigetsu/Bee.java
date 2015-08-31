@@ -17,7 +17,7 @@ public class Bee extends Enemy {
 	private int MAX_HP = 2;
 
 	Bee(Array<Mover> eBulletArray, float x) {
-		super(Assets.ringTexture);
+		super(Assets.beeTexture);
 		setSize(WIDTH, HEIGHT);
 		setPosition(x, EiGetsuGame.HEIGHT);
 		this.bullet = eBulletArray;

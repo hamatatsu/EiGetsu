@@ -21,21 +21,24 @@ public class StartScreen implements Screen {
 	private Viewport viewport;
 	
 	int difficulty = 1; // 初期難易度イージー
+	boolean immortal = false; // 無敵モード
 	TextField level;
+	TextButton immortalButton;
 	
 	public StartScreen(final Game game) {
+		System.out.print(true);
 		camera = new OrthographicCamera(EiGetsuGame.WIDTH, EiGetsuGame.HEIGHT);
 		viewport = new FitViewport(EiGetsuGame.WIDTH, EiGetsuGame.HEIGHT, camera);
 		stage = new Stage(viewport);
 		Gdx.input.setInputProcessor(stage);
 		
 		// 背景を配置
-		Image background = new Image(Assets.bg1Texture);
+		Image background = new Image(Assets.bg0Texture);
 		stage.addActor(background);
 		
 		// タイトルを配置
-		Image title = new Image(Assets.playerTexture);
-		title.setSize(500, 220);
+		Image title = new Image(Assets.titleTexture);
+		title.setSize(500, 250);
 		title.setPosition((stage.getWidth()  - title.getWidth()) / 2, stage.getHeight() / 6 * 4);
 		stage.addActor(title);
 		
@@ -46,8 +49,14 @@ public class StartScreen implements Screen {
         startButton.addListener(new ChangeListener() {
         	@Override
         	public void changed(ChangeEvent event, Actor actor) {
-                // プレイ画面に移行
-                game.setScreen(new PlayScreen(game, difficulty));
+        		try {
+        			difficulty = Integer.parseInt(level.getText());
+        		} catch(NumberFormatException e) {
+        			level.setText("1");
+        			difficulty = 1;
+        		}
+        		// プレイ画面に移行
+                game.setScreen(new PlayScreen(game, difficulty, immortal));
             }
         });
         
@@ -65,17 +74,39 @@ public class StartScreen implements Screen {
         
         // レベル変更
         level = new TextField("1", Assets.skin);
-		level.setSize(110, 50);
-        level.setPosition((stage.getWidth()  - level.getWidth()) / 2, stage.getHeight() * 5 / 12);
+		level.setSize(60, 40);
+        level.setPosition((stage.getWidth()  - level.getWidth()) / 2, stage.getHeight() / 2);
         Label levelText = new Label("level", Assets.skin);
         levelText.setFontScale(2);
-        levelText.setPosition((stage.getWidth()  - level.getWidth()) / 2 - levelText.getPrefWidth(), stage.getHeight() * 10 / 24);
+        levelText.setPosition((stage.getWidth()  - level.getWidth()) / 2 - levelText.getPrefWidth(), stage.getHeight() / 2);
+        
+        // 無敵ボタン
+        immortalButton = new TextButton("off", Assets.skin);
+        immortalButton.setSize(50, 50);
+        immortalButton.setPosition(stage.getWidth() - immortalButton.getWidth(), 0);
+        immortalButton.addListener(new ChangeListener() {
+        	@Override
+        	public void changed(ChangeEvent event, Actor actor) {
+                immortal = !immortal;
+                if (immortal) {
+                	immortalButton.setText("on");
+                } else {
+                	immortalButton.setText("off");
+                }
+            }
+        });
+        Label immortalText = new Label("Immortal Mode", Assets.skin);
+        immortalText.setFontScale(1);
+        immortalText.setPosition(stage.getWidth() - immortalButton.getWidth() - immortalText.getPrefWidth(), 0);
+        
         
         // GUIを配置
 		stage.addActor(startButton);
 		stage.addActor(exitButton);
 		stage.addActor(level);
 		stage.addActor(levelText);
+		stage.addActor(immortalButton);
+		stage.addActor(immortalText);
 	}
 
 	@Override
@@ -84,7 +115,6 @@ public class StartScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
 		stage.draw();
-		difficulty = Integer.parseInt(level.getText());
 	}
 
 	@Override

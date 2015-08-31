@@ -11,7 +11,7 @@ public class EBullet2 extends EBullet {
 	float height;
 
 	EBullet2(float x, float y, float width, float height) {
-		super(Assets.eBullet1Texture);
+		super(Assets.eBullet2Texture);
 		setSize(width, height);
 		setPosition(x - width / 2, y - height / 2);
 		speed = 300;
