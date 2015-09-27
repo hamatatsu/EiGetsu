@@ -9,10 +9,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 public class Assets {
 	private final static String FILE_MOVER_ATLAS = "mover/mover.atlas";
 	private final static String FILE_SKIN = "skin/uiskin.json";
+	private final static String FILE_CHAR_ATLAS = "char/char.atlas";
 
 	private static AssetManager manager;
 
 	private static TextureAtlas moverAtlas;
+	private static TextureAtlas charAtlas;
 
 	public static TextureRegion playerTexture;
 	public static TextureRegion pBulletTexture;
@@ -27,6 +29,15 @@ public class Assets {
 	public static TextureRegion fullMoonTexture;
 	public static TextureRegion newMoonTexture;
 	public static TextureRegion bloodMoonTexture;
+
+	public static TextureRegion kaishiTexture;
+	public static TextureRegion syuryouTexture;
+	public static TextureRegion iTexture;
+	public static TextureRegion nanTexture;
+	public static TextureRegion kyuuTexture;
+	public static TextureRegion tokutenTexture;
+	public static TextureRegion saikaiTexture;
+	public static TextureRegion modoruTexture;
 
 	public static Texture titleTexture;
 	public static Texture bg0Texture;
@@ -44,6 +55,7 @@ public class Assets {
 		// 画像を読み込む
 		manager.load(FILE_MOVER_ATLAS, TextureAtlas.class);
 		manager.load(FILE_SKIN, Skin.class);
+		manager.load(FILE_CHAR_ATLAS, TextureAtlas.class);
 		manager.load("bg/title.png", Texture.class);
 		manager.load("bg/background0.png", Texture.class);
 		manager.load("bg/background1.png", Texture.class);
@@ -55,6 +67,7 @@ public class Assets {
 
 		// テクスチャアトラスを取得
 		moverAtlas = manager.get(FILE_MOVER_ATLAS, TextureAtlas.class);
+		charAtlas = manager.get(FILE_CHAR_ATLAS, TextureAtlas.class);
 
 		// 変数にセット
 		playerTexture = moverAtlas.findRegion("player");
@@ -70,12 +83,23 @@ public class Assets {
 		fullMoonTexture = moverAtlas.findRegion("full_moon");
 		newMoonTexture = moverAtlas.findRegion("new_moon");
 		bloodMoonTexture = moverAtlas.findRegion("blood_moon");
+
 		titleTexture = manager.get("bg/title.png");
 		bg0Texture = manager.get("bg/background0.png");
 		bg1Texture = manager.get("bg/background1.png");
 		bg2Texture = manager.get("bg/background2.png");
 		bg3Texture = manager.get("bg/background3.png");
+
 		skin = manager.get(FILE_SKIN, Skin.class);
+
+		kaishiTexture = charAtlas.findRegion("kaishi");
+		syuryouTexture = charAtlas.findRegion("syuryou");
+		iTexture = charAtlas.findRegion("i");
+		nanTexture = charAtlas.findRegion("nan");
+		kyuuTexture = charAtlas.findRegion("kyuu");
+		tokutenTexture = charAtlas.findRegion("tokuten");
+		saikaiTexture = charAtlas.findRegion("saikai");
+		modoruTexture = charAtlas.findRegion("modoru");
 
 	}
 

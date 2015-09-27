@@ -116,7 +116,7 @@ public class PlayScreen implements Screen {
 		guiGroup.addActor(scoreLabel);
 
 		// ポーズボタン
-		pauseButton = new TextButton("PAUSE", Assets.skin);
+		pauseButton = new TextButton(null, Assets.skin);
 		pauseButton.setSize(100, 50);
 		pauseButton.setPosition(stage.getWidth() - pauseButton.getWidth(),
 				stage.getHeight() - pauseButton.getHeight());
@@ -131,7 +131,13 @@ public class PlayScreen implements Screen {
 				}
 			}
 		});
+		Image pause = new Image(Assets.kyuuTexture);
+		pause.setSize(50, 50);
+		pause.setPosition(
+				stage.getWidth() - pauseButton.getWidth() / 2 - pause.getWidth() / 2,
+				stage.getHeight() - pause.getHeight());
 		guiGroup.addActor(pauseButton);
+		guiGroup.addActor(pause);
 
 		// ジョイスティック
 		joystick = new Touchpad(0, Assets.skin);
@@ -143,44 +149,49 @@ public class PlayScreen implements Screen {
 		for (int i = 0; i < life - 1; i++) {
 			Image lifeTexture = new Image(Assets.playerTexture);
 			lifeTexture.setSize(40, 40);
-			lifeTexture.setPosition(lifeTexture.getWidth() * i, 0);
+			lifeTexture.setPosition(0, lifeTexture.getHeight() * i);
 			stage.addActor(lifeTexture);
 		}
 
 		// ボーズ画面
-		// PAUSING
-		TextButton pausing = new TextButton("PAUSING", Assets.skin);
-		pausing.setSize(300, 100);
-		pausing.setPosition((stage.getWidth() - pausing.getWidth()) / 2,
-				stage.getHeight() / 3 * 2);
-		pausing.getLabel().setFontScale(2.5f);
 		// RESUME
-		TextButton resumeButton = new TextButton("RESUME", Assets.skin);
+		TextButton resumeButton = new TextButton(null, Assets.skin);
 		resumeButton.setSize(300, 100);
 		resumeButton.setPosition(
 				(stage.getWidth() - resumeButton.getWidth()) / 2,
-				stage.getHeight() / 2);
+				stage.getHeight() / 3 * 2 - resumeButton.getHeight() / 2);
 		resumeButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				resume();
 			}
 		});
+		Image resume = new Image(Assets.saikaiTexture);
+		resume.setSize(100, 50);
+		resume.setPosition(
+				(stage.getWidth() - resume.getWidth()) / 2,
+				stage.getHeight() / 3 * 2 - resume.getHeight() / 2);
 		// go title
-		TextButton titleButton = new TextButton("TITLE", Assets.skin);
+		TextButton titleButton = new TextButton(null, Assets.skin);
 		titleButton.setSize(300, 100);
 		titleButton.setPosition(
 				(stage.getWidth() - titleButton.getWidth()) / 2,
-				stage.getHeight() / 3);
+				stage.getHeight() / 3 - titleButton.getHeight() / 2);
 		titleButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				game.setScreen(new StartScreen(game, difficulty));
 			}
 		});
-		pauseStage.addActor(pausing);
+		Image title = new Image(Assets.modoruTexture);
+		title.setSize(100, 50);
+		title.setPosition(
+				(stage.getWidth() - title.getWidth()) / 2,
+				stage.getHeight() / 3 - title.getHeight() / 2);
 		pauseStage.addActor(resumeButton);
 		pauseStage.addActor(titleButton);
+		pauseStage.addActor(resume);
+		pauseStage.addActor(title);
 	}
 
 	@Override
@@ -459,14 +470,12 @@ public class PlayScreen implements Screen {
 
 	@Override
 	public void pause() {
-		pauseButton.setText("RESUME");
 		gameStatus = 1;
 		Gdx.input.setInputProcessor(pauseStage);
 	}
 
 	@Override
 	public void resume() {
-		pauseButton.setText("PAUSE");
 		gameStatus = 0;
 		Gdx.input.setInputProcessor(stage);
 	}

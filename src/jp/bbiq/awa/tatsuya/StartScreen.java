@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -25,6 +26,7 @@ public class StartScreen implements Screen {
 	Image bgTexture;
 	Image level;
 	Image levelTexture;
+	Label levelText;
 	TextButton immortalButton;
 	ImageButton levelButton;
 
@@ -36,7 +38,11 @@ public class StartScreen implements Screen {
 		stage = new Stage(viewport);
 		Gdx.input.setInputProcessor(stage);
 		bgTexture = new Image(Assets.bg0Texture);
-		difficulty = dif;
+		if (dif >= 5) {
+			difficulty = dif + 8;
+		} else {
+			difficulty = dif;
+		}
 
 		// 背景を配置
 		background = bgTexture;
@@ -54,10 +60,15 @@ public class StartScreen implements Screen {
 		level.setSize(150, 150);
 		level.setPosition((stage.getWidth() - level.getWidth()) / 2,
 				stage.getHeight() / 2 - level.getHeight() / 2);
+		levelText = new Label(null, Assets.skin);
+		levelText.setSize(150, 150);
+		levelText.setFontScale(3);
+		levelText.setPosition(stage.getWidth() / 2 - 25, stage.getHeight() / 2
+				- levelText.getHeight() / 2);
 
 		// レベル変更ボタン
-		TextButton upButton = new TextButton("UP", Assets.skin);
-		upButton.setSize(100, 200);
+		TextButton upButton = new TextButton(null, Assets.skin);
+		upButton.setSize(150, 200);
 		upButton.setPosition(
 				stage.getWidth() / 7 * 5 - upButton.getWidth() / 2,
 				stage.getHeight() / 2 - upButton.getHeight() / 2);
@@ -69,13 +80,11 @@ public class StartScreen implements Screen {
 					difficulty = 1;
 				} else if (difficulty <= 1) {
 					difficulty = 2;
-				} else if (difficulty > 13) {
-					difficulty--;
 				}
 			}
 		});
-		TextButton downButton = new TextButton("DOWN", Assets.skin);
-		downButton.setSize(100, 200);
+		TextButton downButton = new TextButton(null, Assets.skin);
+		downButton.setSize(150, 200);
 		downButton.setPosition(stage.getWidth() / 7 * 2 - downButton.getWidth()
 				/ 2, stage.getHeight() / 2 - downButton.getHeight() / 2);
 		downButton.addListener(new ChangeListener() {
@@ -85,7 +94,7 @@ public class StartScreen implements Screen {
 				if (difficulty == 12) {
 					difficulty = 3;
 					bgTexture = new Image(Assets.bg0Texture);
-				} else if (difficulty >= 3) {
+				} else if (difficulty >= 3 && difficulty < 13) {
 					difficulty = 2;
 				} else if (difficulty < -9) {
 					difficulty++;
@@ -94,11 +103,11 @@ public class StartScreen implements Screen {
 		});
 
 		// スタートボタンを作成
-		TextButton startButton = new TextButton("START", Assets.skin);
+		TextButton startButton = new TextButton(null, Assets.skin);
 		startButton.setSize(300, 100);
 		startButton.setPosition(
 				(stage.getWidth() - startButton.getWidth()) / 2,
-				stage.getHeight() / 7 * 2);
+				stage.getHeight() / 7 * 2 - startButton.getHeight() / 2);
 		startButton.getLabel().setFontScale(1.5f);
 		startButton.addListener(new ChangeListener() {
 			@Override
@@ -109,7 +118,9 @@ public class StartScreen implements Screen {
 				// level.setText("1");
 				// difficulty = 1;
 				// }
-				if (difficulty < 1 && difficulty != -9) {
+				if (difficulty > 13) {
+					difficulty -= 8;
+				} else if (difficulty < 1 && difficulty != -9) {
 					difficulty = 1;
 				} else if (difficulty > 3 && difficulty != 13) {
 					difficulty = 3;
@@ -129,10 +140,10 @@ public class StartScreen implements Screen {
 		});
 
 		// 終了ボタンを作成
-		TextButton exitButton = new TextButton("EXIT", Assets.skin);
+		TextButton exitButton = new TextButton(null, Assets.skin);
 		exitButton.setSize(300, 100);
 		exitButton.setPosition((stage.getWidth() - exitButton.getWidth()) / 2,
-				stage.getHeight() / 7 * 1);
+				stage.getHeight() / 7 - exitButton.getHeight() / 2);
 		exitButton.getLabel().setFontScale(1.5f);
 		exitButton.addListener(new ChangeListener() {
 			@Override
@@ -141,6 +152,24 @@ public class StartScreen implements Screen {
 				Gdx.app.exit();
 			}
 		});
+
+		// ラベル
+		Image start = new Image(Assets.kaishiTexture);
+		start.setSize(100, 50);
+		start.setPosition((stage.getWidth() - start.getWidth()) / 2,
+				stage.getHeight() / 7 * 2 - start.getHeight() / 2);
+		Image exit = new Image(Assets.syuryouTexture);
+		exit.setSize(100, 50);
+		exit.setPosition((stage.getWidth() - exit.getWidth()) / 2,
+				stage.getHeight() / 7 - exit.getHeight() / 2);
+		Image i = new Image(Assets.iTexture);
+		i.setSize(50, 50);
+		i.setPosition(stage.getWidth() * 2 / 7 - i.getWidth() / 2,
+				stage.getHeight() / 2 - i.getHeight() / 2);
+		Image nan = new Image(Assets.nanTexture);
+		nan.setSize(50, 50);
+		nan.setPosition(stage.getWidth() * 5 / 7 - nan.getWidth() / 2,
+				stage.getHeight() / 2 - nan.getHeight() / 2);
 
 		// // 無敵ボタン
 		// immortalButton = new TextButton("off", Assets.skin);
@@ -167,8 +196,13 @@ public class StartScreen implements Screen {
 		stage.addActor(startButton);
 		stage.addActor(exitButton);
 		stage.addActor(level);
+		stage.addActor(levelText);
 		stage.addActor(upButton);
 		stage.addActor(downButton);
+		stage.addActor(start);
+		stage.addActor(exit);
+		stage.addActor(i);
+		stage.addActor(nan);
 		// stage.addActor(immortalButton);
 		// stage.addActor(immortalText);
 	}
@@ -179,17 +213,24 @@ public class StartScreen implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		camera.update();
 		// レベル表示変更
-		if (difficulty == -9) {
-			levelTexture = new Image(Assets.newMoonTexture);
-		} else if (difficulty == 13) {
+		if (difficulty > 13) {
 			levelTexture = new Image(Assets.bloodMoonTexture);
 			bgTexture = new Image(Assets.bg3Texture);
-		} else if (difficulty >= 3) {
-			levelTexture = new Image(Assets.fullMoonTexture);
-		} else if (difficulty == 2) {
-			levelTexture = new Image(Assets.halfMoonTexture);
-		} else if (difficulty <= 1) {
-			levelTexture = new Image(Assets.crescentTexture);
+			levelText.setText("" + (difficulty - 12));
+		} else {
+			levelText.setText("");
+			if (difficulty == -9) {
+				levelTexture = new Image(Assets.newMoonTexture);
+			} else if (difficulty == 13) {
+				levelTexture = new Image(Assets.bloodMoonTexture);
+				bgTexture = new Image(Assets.bg3Texture);
+			} else if (difficulty >= 3) {
+				levelTexture = new Image(Assets.fullMoonTexture);
+			} else if (difficulty == 2) {
+				levelTexture = new Image(Assets.halfMoonTexture);
+			} else if (difficulty <= 1) {
+				levelTexture = new Image(Assets.crescentTexture);
+			}
 		}
 		level.setDrawable(levelTexture.getDrawable());
 		background.setDrawable(bgTexture.getDrawable());
