@@ -102,7 +102,7 @@ public class Crescent extends Enemy {
 			break;
 		case 3: // fullmoon
 			move3(delta);
-			if (PlayScreen.difficulty == 5 && super.hp < 10) {
+			if (PlayScreen.difficulty >= 5 && super.hp < 10) {
 				moveMode = 0;
 				Sprite next = new Sprite(Assets.bloodMoonTexture);
 				next.setPosition(EiGetsuGame.WIDTH / 2 - getWidth() / 2,
