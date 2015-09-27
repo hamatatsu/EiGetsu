@@ -1,6 +1,5 @@
 package jp.bbiq.awa.tatsuya;
 
-
 public class EBullet1 extends EBullet {
 	float angle;
 	float speed;
