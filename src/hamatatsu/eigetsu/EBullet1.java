@@ -1,6 +1,5 @@
 package hamatatsu.eigetsu;
 
-
 public class EBullet1 extends EBullet {
 	float angle;
 	float speed;
